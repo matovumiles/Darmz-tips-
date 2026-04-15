@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "Tip": {
+      "title": "Tip",
+      "description": "A sports betting tip.",
+      "type": "object",
+      "properties": {
+        "sport": { "type": "string", "description": "Football, Basketball, Tennis, or Cricket" },
+        "league": { "type": "string" },
+        "home": { "type": "string" },
+        "away": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "tip": { "type": "string" },
+        "odds": { "type": "number" },
+        "confidence": { "type": "integer" },
+        "reasoning": { "type": "string" },
+        "expected_value": { "type": "number" },
+        "image_url": { "type": "string" },
+        "isHot": { "type": "boolean" }
+      },
+      "required": ["sport", "league", "home", "away", "date", "tip", "odds", "confidence", "reasoning"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User account data and favorites.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "favorites": { "type": "array", "items": { "type": "string" } },
+        "role": { "type": "string", "enum": ["user", "admin"] }
+      },
+      "required": ["uid", "email", "displayName", "favorites"]
+    }
+  },
+  "firestore": {
+    "/tips/{tipId}": {
+      "schema": "Tip",
+      "description": "Public sports tips collection."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Private user profile data."
+    }
+  }
+}

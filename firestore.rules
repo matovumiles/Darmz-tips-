@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: tips
+    // Fields:
+    //   - sport: string (required, enum: Football, Basketball, Tennis, Cricket)
+    //   - league: string (required)
+    //   - home: string (required)
+    //   - away: string (required)
+    //   - tip: string (required)
+    //   - odds: number (required, positive)
+    //   - confidence: int (required, 68-92)
+    //   - reasoning: string (required, < 1000 chars)
+    //   - date: timestamp (required)
+    //
+    // Collection: users
+    // Fields:
+    //   - uid: string (required, matches doc ID)
+    //   - email: string (required)
+    //   - displayName: string (required)
+    //   - favorites: list (required, strings)
+    //   - role: string (optional, default: 'user')
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      let userDoc = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return isAuthenticated() && 
+        (request.auth.token.email == "matovuedward69@gmail.com" || 
+         (userDoc.exists() && userDoc.data().role == 'admin'));
+    }
+
+    function isValidTip(data) {
+      return data.sport is string && 
+             data.league is string && 
+             data.home is string && 
+             data.away is string && 
+             data.tip is string && 
+             data.odds is number && 
+             data.confidence is int && 
+             data.date is timestamp &&
+             (data.status == 'active' || data.status == 'won' || data.status == 'lost');
+    }
+
+    function isValidNotification(data) {
+      return data.userId is string && data.userId.size() > 0 && data.userId.size() < 100 &&
+             data.message is string && data.message.size() > 0 && data.message.size() < 1000 &&
+             data.createdAt is timestamp;
+    }
+
+    // Notifications: Users can read their own notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() && isValidNotification(request.resource.data);
+    }
+
+    // Tips: Anyone can read, only admins can write
+    match /tips/{tipId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidTip(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Users: Only owner can read/write their own profile
+    match /users {
+      allow list: if isAdmin();
+    }
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && 
+                      (!('role' in request.resource.data) || request.resource.data.role == 'user');
+      allow update: if (isOwner(userId) && (request.resource.data.role == resource.data.role)) || isAdmin();
+    }
+  }
+}

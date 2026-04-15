@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-red: #EF4444;
+  --color-blue: #3B82F6;
+  --color-orange: #F97316;
+  --color-yellowish-green: #84CC16;
+  --color-white: #FFFFFF;
+  --color-dark-bg: #05070A;
+  --color-card-bg: #0F172A;
+  --color-navy-deep: #0B1120;
+  --color-linear-gradient: linear-gradient(to right, #EF4444, #3B82F6, #F97316);
+}
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-white font-sans antialiased;
+  }
+}
+
+.btn-gradient {
+  @apply bg-linear-gradient text-white font-bold py-2 px-4 rounded-xl;
+}
+
+.glass-card {
+  @apply bg-card-bg/40 backdrop-blur-md border border-white/10 rounded-2xl;
+}
+
+.navy-card {
+  @apply bg-navy-deep border border-white/10 rounded-2xl shadow-xl shadow-black/20;
+  background-image: radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent);
+}
+
+.navy-gradient {
+  background: linear-gradient(135deg, #0F172A 0%, #0B1120 100%);
+}
+
+.neon-glow-blue {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.neon-glow-red {
+  box-shadow: 0 0 15px rgba(255, 45, 85, 0.2);
+}
